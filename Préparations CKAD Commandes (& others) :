@@ -1,1 +1,228 @@
+##Bootstrap de session##
+
+# Vérifier les alias disponibles
+alias
+# L'alias k doit exister
+alias k=kubectl
+# Variable pour génération YAML (LA plus importante)
+export do="--dry-run=client -o yaml"
+# Alias pour changer de namespace rapidement
+alias kn='kubectl config set-context --current --namespace'
+# Autocomplétion
+source <(kubectl completion bash)
+complete -F __start_kubectl k
+# Éditeur
+export KUBE_EDITOR="vim"
+
+# Voir le namespace actuel
+k config view --minify | grep namespace
+
+# Changer de namespace
+kn production
+
+###Tableau "besoin → commande"### :
+
+Générer un Pod YAML   	              k run nginx --image=nginx $do > pod.yaml
+Générer un Deployment YAML	          k create deploy webapp --image=nginx $do > deploy.yaml
+Exposer rapidement un Deployment	    k expose deploy webapp --port=80
+Mettre à jour l'image d'un Deployment	k set image deploy webapp webapp=nginx:1.28
+Voir pourquoi un Pod ne démarre pas	  k describe pod <nom>
+Lire les logs d'un crash	            k logs <pod> --previous
+Trouver la syntaxe d'un champ	        k explain pod.spec.containers
+Changer de namespace rapidement	      kn <namespace> (alias ci-dessous)
+Voir les événements récents	          k get events --sort-by='.lastTimestamp'
+Rollback d'un Deployment	            k rollout undo deploy webapp
+
+# Voir le namespace actuel            k config view --minify | grep namespace
+# Changer de namespace                kn production
+(Piège fréquent : Oublier de vérifier le namespace. Chaque question peut cibler un namespace différent.)
+
+
+### Application Design and Build (20%) ###
+
+Créer un Pod                          k run nginx --image=nginx
+# Générer le YAML pour modification   k run nginx --image=nginx $do > pod.yaml
+(But : Créer un Pod simple. Quand : Test rapide, Pod éphémère. Piège : Oublier de générer le YAML si vous devez ajouter des volumes ou probes.)
+
+--port=80	                          Expose un port (documentation)
+--labels="app=web"	                Ajoute des labels
+--env="DB_HOST=mysql"	              Variable d'environnement
+--requests="cpu=100m,memory=128Mi"	Ressources minimales
+--limits="cpu=200m,memory=256Mi"	  Ressources maximales
+--command -- sleep 3600	            Remplace ENTRYPOINT
+
+Créer un Deployment                 k create deploy webapp --image=nginx --replicas=3
+# Générer le YAML                   k create deploy webapp --image=nginx --replicas=3 $do > deploy.yaml
+(But : Déployer une application avec réplicas. Quand : Application stateless avec scaling. Piège : Le label app=webapp est ajouté automatiquement.)
+
+créer un Job et CronJob : 
+
+# Job ponctuel                       k create job backup --image=busybox -- tar -czf /backup/data.tar.gz /data
+# CronJob planifié                   k create cronjob daily-backup --image=busybox --schedule="0 2 * * *" -- /scripts/backup.sh
+
+### Application Deployment (20%) ###
+
+Mettre à jour l'image                 k set image deploy webapp webapp=nginx:1.28
+(But : Déclencher un rolling update. Syntaxe : <conteneur>=<nouvelle-image>. Piège : Le nom du conteneur doit correspondre à celui défini dans le Deployment.)
+
+Suivre et annuler un rollout
+
+# Suivre le rollout                   k rollout status deploy webapp
+# Voir l'historique                   k rollout history deploy webapp
+# Rollback immédiat                   k rollout undo deploy webapp
+# Rollback à une révision spécifique  k rollout undo deploy webapp --to-revision=1
+(Piège : Pas de message d'erreur si le rollback échoue silencieusement. Vérifiez avec rollout status)
+
+Scaler un Deployment (manuellement)   k scale deploy webapp --replicas=5
+Autoscaling (automatique)             k autoscale deploy webapp --min=2 --max=10 --cpu-percent=80
+
+### Application Observability and Maintenance (15% ###
+
+Logs 
+k logs <pod>
+k logs <pod> -c <conteneur>     # Multi-conteneur
+k logs <pod> --previous         # Après un crash
+k logs <pod> -f                 # Suivre en temps réel
+k logs -l app=webapp            # Tous les Pods d'un label
+(Piège : Après un crash, les logs disparaissent. Utilisez --previous immédiatement.)
+
+Describe                         k describe pod <nom>
+(But : Voir l'état complet + Events. Quand : Pod en Pending, ImagePullBackOff, CrashLoopBackOff.)
+Les Events révèlent :
+ImagePullBackOff : image inexistante
+CrashLoopBackOff : l'app crash au démarrage
+FailedScheduling : pas de node disponible
+OOMKilled : limite mémoire dépassée
+
+Events du cluster                 k get events --sort-by='.lastTimestamp'
+
+Exec dans un conteneur            k exec -it <pod> -- /bin/sh
+                                  k exec <pod> -- ls -la /app
+                                  k exec -it <pod> -c <conteneur> -- /bin/sh  # Multi-conteneur
+
+Dans le conteneur :
+                                  env                    # Variables d'environnement
+                                  cat /etc/resolv.conf   # Config DNS
+                                  wget -qO- localhost:80 # Test local
+
+### Application Environment, Configuration and Security (25%) ###
+
+ConfigMap
+# Créer depuis littéraux:          k create cm app-config --from-literal=DB_HOST=mysql --from-literal=LOG_LEVEL=debug
+# Créer depuis fichier :           k create cm app-config --from-file=config.properties
+# Vérifier:                        k describe cm app-config
+(Piège : --from-literal pour valeurs simples, --from-file pour fichiers entiers.)
+
+Secret:                            k create secret generic db-creds --from-literal=username=admin --from-literal=password=secret123
+(Piège : Les secrets sont encodés base64, pas chiffrés.
+
+ServiceAccount:                    k create sa my-sa
+
+### Services and Networking (20%) ###
+
+Exposer un Deployment:
+# ClusterIP (défaut, interne):             k expose deploy webapp --port=80
+# NodePort (externe via port du node):     k expose deploy webapp --port=80 --type=NodePort
+# Avec target-port différent:              k expose deploy webapp --port=8080 --target-port=80
+(Rappel : port = port du Service, targetPort = port du conteneur.)
+
+Vérifier un Service:
+                                          k get svc webapp
+                                          k get endpoints webapp  # Voir les Pods sélectionnés
+(Piège : Si ENDPOINTS est vide, les labels du Service ne matchent aucun Pod.)
+
+Tester un Service depuis le cluster:       k run test --image=busybox --rm -it -- wget -qO- webapp:80
+
+
+Exploration de l'API
+
+kubectl explain: 
+                                            k explain pod.spec.containers
+                                            k explain pod.spec.containers.livenessProbe
+                                            k explain deployment.spec.strategy
+(But : Trouver la syntaxe exacte d'un champ sans mémoriser. Quand : Toujours, avant d'écrire du YAML complexe.)
+
+# Vue récursive + grep:                      k explain pod.spec --recursive | grep -i volume
+
+kubectl explain > mémorisation
+(À la CKAD, kubectl explain vaut souvent mieux que mémoriser toute la hiérarchie YAML. Utilisez-le systématiquement pour les champs complexes (probes, securityContext, volumes).)
+
+api-resources:                                k api-resources
+(Short names utiles : po (pods), svc (services), deploy (deployments), cm (configmaps), pvc (persistentvolumeclaims).)
+
+Outputs et filtrage
+
+# Vue étendue (IP, node):                     k get pods -o wide
+# Exporter en YAML:                           k get pod nginx -o yaml > pod.yaml
+# JSONPath:
+                                              k get pod nginx -o jsonpath='{.status.podIP}'
+                                              k get pods -o jsonpath='{.items[*].metadata.name}'
+# Filtrer par label:  
+                                              k get pods -l app=nginx
+                                              k get pods -l 'app in (nginx,redis)'
+# Tous les namespaces:                        k get pods -A
+# Trier par date:                             k get pods --sort-by='.metadata.creationTimestamp'
+
+Commandes à connaître par cœur
+
+k run ... $do                  # Générer Pod YAML
+k create deploy ... $do        # Générer Deployment YAML
+k expose deploy ...            # Créer Service
+k set image deploy ...         # Mettre à jour image
+k rollout status deploy ...    # Suivre rollout
+k rollout undo deploy ...      # Rollback
+k logs ... --previous          # Logs après crash
+k describe pod ...             # État + Events
+k explain ...                  # Syntaxe YAML
+k get events                   # Événements cluster
+
+À retrouver vite dans la doc
+(Ne perdez pas de temps à mémoriser ces éléments, retrouvez-les avec kubectl explain ou dans la doc :)
+
+Détails d'Ingress:            k explain ingress.spec
+Champs avancés des probes:    k explain pod.spec.containers.livenessProbe
+Options de securityContext:   k explain pod.spec.securityContext
+Syntaxe exacte d'un CronJob:  k explain cronjob.spec
+Règles de NetworkPolicy:      k explain networkpolicy.spec
+
+Dépannage rapide 
+
+Pending	                 k describe pod	            Pas de node, requests trop élevées
+ImagePullBackOff	       k describe pod	            Image inexistante
+CrashLoopBackOff	       k logs --previous	        L'app crash au démarrage
+Service ne répond pas	   k get endpoints	          Labels incorrects (aucun Pod sélectionné)
+ConfigMap absent	       k get cm	                  Mauvais namespace
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
