@@ -1,3 +1,9 @@
+ckad exam guide 2026 github (recherche google) 
+https://killer.sh/ckad
+https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/certifications/ckad/commandes-essentielles/ 
+https://github.com/stephrobert/containers-training/blob/main/03-Kubernetes/01-kubernetes-debutant/03-replicasets.md
+https://github.com/techwithmohamed/CKA-Certified-Kubernetes-Administrator https://github.com/chadmcrowell/CKA-Exercises
+
 ##Bootstrap de session##
 
 # Vérifier les alias disponibles
@@ -14,11 +20,16 @@ complete -F __start_kubectl k
 # Éditeur
 export KUBE_EDITOR="vim"
 
-# Voir le namespace actuel
-k config view --minify | grep namespace
+# Voir le namespace actuel           k config view --minify | grep namespace
+# Changer de namespace               kn production
+# Vérifier le contexte actuel        kubectl config current-context
+                                     kubectl config get-contexts          
 
-# Changer de namespace
-kn production
+(Chaque question peut cibler un cluster différent. Vérifiez toujours le contexte demandé dans l'énoncé et changez-le si nécessaire) 
+                                     kubectl config use-context <nom>.
+
+
+
 
 ###Tableau "besoin → commande"### :
 
@@ -194,24 +205,28 @@ Service ne répond pas	   k get endpoints	          Labels incorrects (aucun Pod
 ConfigMap absent	       k get cm	                  Mauvais namespace
 
 
+-----------------------------------------------------------------------------------------------------
+Pod Kubernetes : créer, observer et comprendre son cycle de vie : 
+
+Pour voir la phase :                        kubectl get pod mon-nginx -o jsonpath='{.status.phase}'
+Voir l'état :                               kubectl get pod mon-pod -o wide
+Lire les événements :                       kubectl describe pod mon-pod | tail -20
+Consulter les logs :                        kubectl logs mon-pod --tail=50
+Entrer dans le conteneur (si possible) :    kubectl exec -it mon-pod -- sh
+Surveiller les ressources:                  kubectl top pod mon-pod
+Debug avancé : ephemeral container          kubectl debug -it mon-pod --image=busybox:1.36 --target=mon-conteneur
+(Si le conteneur n'a pas de shell (image distroless, scratch), utilisez un conteneur éphémère :)
+
+kubectl logs mon-pod --previous   # Logs du crash précédent
+kubectl describe pod mon-pod      # Voir le exit code
+kubectl describe pod mon-pod | grep -A 5 "Events"
+kubectl describe pod mon-pod | grep -A 10 "Events"
+kubectl get nodes -o wide
+kubectl describe node <nom-du-noeud>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+--------------------------------------------------------------------------------------------------------
+Jobs et CronJobs Kubernetes : exécuter des tâches ponctuelles et planifiées : 
 
 
 
