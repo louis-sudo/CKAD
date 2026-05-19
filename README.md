@@ -4,6 +4,7 @@ Préparation Certification CKAD
 
 Listes d'exercices pour la préparation de la certification CKAD : 
 
+- Exercices CKAD par catégorie (réponses , commande et tout 28q) : https://grok.com/c/db6198a5-84b0-4b64-b025-bac78b8a8aaa?rid=2cc27c3e-9df7-4dcc-a1a6-0587ca790f4d
 - Exercices CKAD page entière (all catégories 23q) : https://grok.com/c/0bc13f71-cfe0-4b60-83ba-6ba6ef62e12f?rid=61e56fcc-9267-435f-bfdd-9aabeaf01cc5
 - Réponses aux Exercices CKAD Page entière ( + comparaison avec site stéphane robert ce qu'il manque)  : https://grok.com/c/c2d7c41d-65e0-4a14-965b-108d86c9dfc6?rid=f2deecd7-cb8c-4110-87de-b9f4289092ed
 - Exercices de troubleshooting CKAD (26q) : https://grok.com/c/cb21f07e-e3cd-4d56-9c3a-8dfba4f1f1f7?rid=7ba18847-0701-4b54-bfc3-97a8e9c0c896
