@@ -3,9 +3,9 @@ Préparation Certification CKAD
 
 
 Listes d'exercices pour la préparation de la certification CKAD : 
-
-
-
+ 
+ 
+ 
 - Exercices CKAD par catégorie (réponses , commande et tout 28q) : https://grok.com/c/db6198a5-84b0-4b64-b025-bac78b8a8aaa?rid=2cc27c3e-9df7-4dcc-a1a6-0587ca790f4d
 - Exercices CKAD page entière (all catégories 23q) : https://grok.com/c/0bc13f71-cfe0-4b60-83ba-6ba6ef62e12f?rid=61e56fcc-9267-435f-bfdd-9aabeaf01cc5
 - Réponses aux Exercices CKAD Page entière ( + comparaison avec site stéphane robert ce qu'il manque)  : https://grok.com/c/c2d7c41d-65e0-4a14-965b-108d86c9dfc6?rid=f2deecd7-cb8c-4110-87de-b9f4289092ed
@@ -15,15 +15,15 @@ Listes d'exercices pour la préparation de la certification CKAD :
 - Exercices de préparations Application Design and Build (20%) : https://grok.com/project/3fb55066-bfb1-4ea6-9d0f-0d8ade34b89c?chat=5f9d54df-6c97-4b86-9794-a9c9edee7524&rid=c9343baf-2417-4b2c-b3d4-47d404c8f212
 - Exercices de préparations Services and Networking (20%) :   https://grok.com/project/3fb55066-bfb1-4ea6-9d0f-0d8ade34b89c?chat=f86c202c-380b-4c64-a008-4ae1183be57e&rid=008e7350-d5c0-49d7-8c8a-998bdc3309dc
 - Exercices de préparations Application Observability and Maintenance (15%) : https://grok.com/project/3fb55066-bfb1-4ea6-9d0f-0d8ade34b89c?chat=1a711d8d-ba9f-45d8-b9e4-f33a86e24c73&rid=c296e3e4-25a2-44db-a2c3-944341025d13
-
-
-
+ 
+ 
+ 
 - Toutes les commandes kubectl et par catégorie d'exam CKAD : https://grok.com/c/1d4e7603-515b-4374-a133-08c5fc233a53?rid=36fa0995-bc17-4de6-9717-b13073826d07
 - différentes commandes pour modifier le contenu d'un déploiment : https://grok.com/c/f4417882-9b69-4f89-a20c-06beeec11e14?rid=b0e71565-eb02-4f5e-8050-291fe5325af4
 - différentes commandes avec shortname : https://grok.com/project/3fb55066-bfb1-4ea6-9d0f-0d8ade34b89c?chat=3c40b6ae-94a8-4bbc-a0a5-bec92c647eb2&rid=3c87c5c0-e19c-49fa-9128-4b6b2132e71a
-
-
-
+ 
+ 
+ 
 - page avec question sur stratégie de déploiment : https://grok.com/project/3fb55066-bfb1-4ea6-9d0f-0d8ade34b89c?chat=c02ad12e-9e65-42cc-bc98-aba95b1183c4&rid=4d071c21-ebde-44b3-a5aa-2e2586409c20
 - page avec questions sur namespace : https://grok.com/project/3fb55066-bfb1-4ea6-9d0f-0d8ade34b89c?chat=7fb9e6b5-2120-42e8-b335-7f6fe667ac0e&rid=ce765130-e810-4390-9d55-32a1068f74f5
 - page avec objets sous-objets et champs minimum à connaître pour la CKAD : https://grok.com/project/3fb55066-bfb1-4ea6-9d0f-0d8ade34b89c?chat=dc276563-dac0-4ce2-b151-146c7934bfe2&rid=2c999ae4-7bd7-4f71-b750-977d90657f04
