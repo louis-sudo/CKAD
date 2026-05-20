@@ -30,15 +30,189 @@ Listes d'exercices pour la préparation de la certification CKAD :
 
 
 
+3. Application Observability and Maintenance (15%) 
+
+1. Application Design and Build (20%)
+
+Objets principaux : Pod, Deployment, DaemonSet, StatefulSet, Job, CronJob, PersistentVolume, PersistentVolumeClaim, StorageClass.
+Champs racine communs à tous les workloads :
+
+apiVersion (v1, apps/v1, batch/v1)
+kind
+metadata.name
+metadata.labels (très important pour selector)
+metadata.annotations (parfois pour Helm/Kustomize)
+
+Deployment / DaemonSet / StatefulSet :
+
+spec.selector.matchLabels
+spec.template.metadata.labels (doit matcher le selector)
+spec.replicas (Deployment/StatefulSet)
+spec.service (StatefulSet – headless service)
+
+Job :
+spec.template (pod template)
+
+spec.completions  !!!!!!!!!!!!!!
+spec.parallelism  !!!!!!!!!!!!!
+spec.backoffLimit !!!!!!!!!!!!
+spec.activeDeadlineSeconds !!!!!!!!!!!!!!!!!!!!!!
+spec.template.spec.restartPolicy → OnFailure ou Never (jamais Always) !!!!!!!!!!!!!!!!!!!!!
+
+CronJob :
+
+spec.schedule (format cron)  !!!!!!!!!
+spec.jobTemplate.spec.template (le pod template du Job)
+
+volumes[] (ephemeral + persistent)
+name
+emptyDir (sizeLimit, medium: Memory)
+persistentVolumeClaim (claimName)
+configMap / secret (pour plus tard)
+
+volumeMounts[] dans chaque container
+name, mountPath, subPath, readOnly
+
+2. Application Deployment (20%)
+Objets principaux : Deployment, (parfois StatefulSet pour stratégie), Helm, Kustomize.
+Champs racine spécifiques Deployment :
+
+spec.strategy.type → RollingUpdate (défaut) ou Recreate
+spec.strategy.rollingUpdate
+maxUnavailable (ex: 25% ou 1)
+maxSurge (ex: 25% ou 1)
+
+spec.minReadySeconds
+spec.progressDeadlineSeconds (pour savoir quand un rollout échoue)
+
+Blue/Green & Canary (primitives Kubernetes) :
+
+Deux Deployments + service selector qui change (ou labels temporaires)
+Ou Deployment avec maxUnavailable: 0 + maxSurge: 100% pour canary manuel
+
+PodSpec (peu de nouveauté ici, mais tu réutilises tout le template du point 1)
+Helm & Kustomize : pas de champs YAML spécifiques dans le manifest, mais tu dois savoir :
+
+helm install/upgrade --set / --values
+kustomization.yaml → resources:, patchesStrategicMerge:, configMapGenerator, secretGenerator
+
+
+3. Application Observability and Maintenance (15%)
+Objets principaux : Deployment, Pod, (kubectl commands).
+PodSpec / spec.template.spec (cette section est très lourde) :
+Dans containers[] uniquement :
+
+livenessProbe
+readinessProbe
+startupProbe
+Types : httpGet, tcpSocket, exec
+Champs communs : initialDelaySeconds, periodSeconds, timeoutSeconds, successThreshold, failureThreshold, terminationGracePeriodSeconds
+
+lifecycle (hooks)
+preStop
+postStart
+(exec ou httpGet)
+
+
+Autres champs utiles pour debugging :
+
+terminationGracePeriodSeconds (pod level)
+stdin, tty (parfois pour debug)
+
+4. Application Environment, Configuration and Security (25%) – le plus lourd
+Objets principaux : ConfigMap, Secret, Deployment/Pod, ServiceAccount, ResourceQuota, LimitRange, CRD/Operator (découverte seulement), SecurityContext.
+Champs racine :
+
+metadata.labels / metadata.annotations
+spec.serviceAccountName (dans pod spec)
+automountServiceAccountToken: false (sécurité)
+
+PodSpec / spec.template.spec (très important) :
+Ressources (dans chaque container) :
+YAMLresources:
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+    ephemeral-storage: "1Gi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+    ephemeral-storage: "2Gi"
+Config & Secrets (plusieurs façons) :
+
+env[]
+value
+valueFrom.configMapKeyRef
+valueFrom.secretKeyRef
+valueFrom.fieldRef (metadata.name, status.podIP, etc.)
+
+envFrom[]
+configMapRef
+secretRef
+
+volumeMounts + volumes.configMap / volumes.secret
+
+Security :
+Pod level (spec.securityContext) :
+
+runAsUser, runAsGroup, fsGroup
+supplementalGroups
+sysctls[]
+
+Container level (containers[].securityContext) :
+
+runAsNonRoot: true
+readOnlyRootFilesystem: true
+allowPrivilegeEscalation: false
+capabilities
+add / drop (ex: NET_ADMIN, SYS_TIME, ALL)
+
+privileged: false
+seccompProfile.type (RuntimeDefault, Localhost, Unconfined)
+
+Autres :
+
+imagePullSecrets[] (pod level)
+
+CRD / Operators : tu dois juste savoir les lister (kubectl get crd) et les utiliser comme n’importe quel objet (pas de création de CRD à l’examen).
+
+
+. Services and Networking (20%)
+Objets principaux : Service, Ingress, NetworkPolicy (pas de champs dans le pod spec ici, mais labels très importants).
+Service :
+
+spec.selector (doit matcher les labels du pod template)
+spec.ports[] (port, targetPort, nodePort, protocol)
+spec.type (ClusterIP, NodePort, LoadBalancer)
+
+Ingress (networking.k8s.io/v1) :
+
+spec.rules[]
+host
+http.paths[]
+path, pathType (Prefix, Exact, ImplementationSpecific)
+backend.service.name + backend.service.port.number
 
 
 
+NetworkPolicy :
+
+spec.podSelector.matchLabels
+spec.policyTypes (Ingress, Egress)
+spec.ingress[] / spec.egress[]
+from / to (podSelector, namespaceSelector, ipBlock)
+ports (port + protocol)
+
+
+Dans le PodSpec (indirect) :
+
+Les labels du spec.template.metadata.labels sont critiques (sélection par Service et NetworkPolicy).
 
 
 
-
-
-
+niveau pod donc pod security context = 
+runAsUser / runAsGroup ; fsGroup ; seccompProfile.type au niveau du container toutes les valeurs auf fsGroup : 
+runAsNonRoot ; readOnlyRootFilesystem ; allowPrivilegeEscalation ; privileged ; capabilities.drop/add ; runAsUser / runAsGroup ; seccompProfile.type
 
 
 
